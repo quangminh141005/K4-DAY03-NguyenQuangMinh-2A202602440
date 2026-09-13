@@ -63,58 +63,80 @@ TOOLS_SCHEMA = [
 # 2. MÔ PHỎNG DỮ LIỆU & HÀM THỰC THI TOOL (EXECUTION LAYER)
 # ==============================================================================
 
-MOCK_DATABASE = {
-    "SV2026001": {
-        "full_name": "Nguyễn Văn An",
-        "class": "AI-K4",
-        "gpa": 3.85,
-        "email": "an.nv@vinuni.edu.vn",
-        "status": "Đang học",
-        "advisor": "PGS.TS Nguyễn Văn A"
-    },
-    "SV2026002": {
-        "full_name": "Trần Thị Bình",
-        "class": "AI-K4",
-        "gpa": 3.60,
-        "email": "binh.tt@vinuni.edu.vn",
-        "status": "Đang học",
-        "advisor": "TS. Lê Thị B"
-    }
-}
+QC_DATABASE = {
+      "LB-3D-102": {
+          "data_type": "3D",
+          "qc_status": "FAILED",
+          "defect_type": "Incorrect 3D bounding box",
+          "severity": "HIGH",
+          "rework_required": True
+      },
+      "LB-2D-201": {
+          "data_type": "2D",
+          "qc_status": "PASSED",
+          "defect_type": None,
+          "severity": None,
+          "rework_required": False
+      }
+  }
 
 
-def execute_academic_query(student_id: str) -> str:
-    """Thực thi tra cứu học vụ theo mã sinh viên"""
-    student = MOCK_DATABASE.get(student_id.strip().upper())
-    if student:
-        return json.dumps({
-            "status": "SUCCESS",
-            "student_id": student_id,
-            "data": student
-        }, ensure_ascii=False)
-    else:
-        return json.dumps({
+
+def execute_query_qc_label(label_id: str) -> str: 
+    """Check if the label exist in the DB or not"""
+    label_id = label_id.strip().upper()
+    record = QC_DATABASE.get(label_id)
+
+    if not record:
+        return json.dump({
             "status": "NOT_FOUND",
-            "message": f"Không tìm thấy dữ liệu sinh viên có mã '{student_id}'"
+            "message": f"Không tìm thấy được ca gán nhãn {label_id}"
         }, ensure_ascii=False)
 
-
-def execute_schedule_appointment(student_id: str, datetime_str: str, advisor_name: str = "PGS.TS Nguyễn Văn A") -> str:
-    """Thực thi đặt lịch hẹn tư vấn học vụ"""
     return json.dumps({
-        "status": "SUCCESS",
-        "booking_id": f"BK-{student_id}-99",
-        "student_id": student_id,
-        "datetime": datetime_str,
-        "advisor": advisor_name,
-        "message": f"Đặt lịch thành công cho sinh viên {student_id} với {advisor_name} vào lúc {datetime_str}."
+        "status": "SUCESS",
+        "label_id": label_id,
+        "data": record
     }, ensure_ascii=False)
+
+def execute_create_rework_ticket(
+      label_id: str,
+      reason: str,
+      priority: str
+  ) -> str:
+      label_id = label_id.strip().upper()
+      record = QC_DATABASE.get(label_id)
+
+      if not record:
+          return json.dumps({
+              "status": "NOT_FOUND",
+              "message": f"Không tìm thấy ca gán nhãn '{label_id}'."
+          }, ensure_ascii=False)
+
+      if not record["rework_required"]:
+          return json.dumps({
+              "status": "REJECTED",
+              "message": (
+                  f"Ca gán nhãn '{label_id}' đã đạt QC; "
+                  "không cần tạo phiếu Rework."
+              )
+          }, ensure_ascii=False)
+
+      return json.dumps({
+          "status": "SUCCESS",
+          "ticket_id": f"RW-{label_id}",
+          "label_id": label_id,
+          "reason": reason,
+          "priority": priority,
+          "message": f"Đã tạo phiếu Rework cho '{label_id}'."
+      }, ensure_ascii=False)
+
 
 
 # Router gọi tool thực tế
 TOOL_ROUTER = {
-    "academic_query": execute_academic_query,
-    "schedule_appointment": execute_schedule_appointment
+    "academic_query": execute_query_qc_label,
+    "schedule_appointment": execute_create_rework_ticket
 }
 
 def dispatch_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
