@@ -168,7 +168,7 @@ if __name__ == "__main__":
     print("==========================================================")
     
     provider = get_llm_provider()
-    mcp_server = MCPAcademicServer()
+    mcp_server = MCPQCServer()
     
     print(f"🔌 LLM Provider: {provider.__class__.__name__}")
     print(f"🌐 MCP Server: {mcp_server.server_name}\n")

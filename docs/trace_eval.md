@@ -1,8 +1,8 @@
 # 📊 BÁO CÁO THU HOẠCH NGHIỆM THU BÀI LAB 3 (BƯỚC 3 — SUBMISSION ARTIFACT)
 
-> **Họ và Tên Học viên:** [Điền Họ và Tên]  
-> **Mã Sinh Viên / Mã Học viên:** [Điền MSSV]  
-> **Chủ đề Lựa chọn:** [Điền tên chủ đề đã chọn từ docs/DANH_SACH_DE_TAI.md hoặc Đề tài Mở]  
+> **Họ và Tên Học viên:** Nguyễn Quang Minh  
+> **Mã Sinh Viên / Mã Học viên:** 2A2020602440  
+> **Chủ đề Lựa chọn:** Trợ lý Kiểm định Chất lượng (QC Assistant)
 
 ---
 
@@ -10,11 +10,11 @@
 
 | Tiêu chí Đánh giá | Mức độ (1 - 5) | Giải trình chi tiết lý do chọn điểm |
 | :--- | :---: | :--- |
-| **1. Multi-step Reasoning** | / 5 | Bài toán có yêu cầu chia nhỏ nhiều bước suy luận nối tiếp nhau không? |
-| **2. Tool Interaction** | / 5 | Hệ thống có cần kết nối với MCP Server / Cơ sở dữ liệu bên ngoài không? |
-| **3. Dynamic Decision** | / 5 | Bước tiếp theo có phụ thuộc vào kết quả quan sát bước trước không? |
-| **4. Long Horizon Goal** | / 5 | Hệ thống có phải giữ mục tiêu xuyên suốt qua nhiều lượt xử lý không? |
-| **TỔNG ĐIỂM AGENTIC FIT** | **/ 20** | *Nếu tổng điểm > 12/20: Bài toán rất phù hợp triển khai Agentic System.* |
+| **1. Multi-step Reasoning** | 4 / 5 | Agent này sẽ phải xác định mã lỗi dựa ào các loại dữ liệu từ 2D đến 3D, sau đó sẽ phải tra cứu thông tin, đánh giá và quyết định xem có cần kiểm tra lại hay không |
+| **2. Tool Interaction** | 5 / 5 | Hệ thống này sẽ cần tối thiểu hai công cụ: công cụ tra cứu ca lỗi và công cụ tạo phiếu để kiểm tra lại. Các công cụ được gọi thông qua MCP server và có thể kết nối với cơ sở dữ liệu |
+| **3. Dynamic Decision** | 5 / 5 | Nếu không tìm thầy ca lỗi thì sẽ phải kiểm tra lại mã của gãn dán, rồi kiểm tra xem đã đủ điều kiện hay chưa để có thể viết phiếu để yêu cầu rework lại quá trình. Nếu phiếu đã tồn tại, agent cũng phải kiểm tra xem để tránh lặp |
+| **4. Long Horizon Goal** | 2 / 5 | Hệ thống cần duy trì mục tiêu xử lý xuyên suốt nhiều bước, tuy nhiêu tổng các bước vẫn còn đang ngắn |
+| **TỔNG ĐIỂM AGENTIC FIT** | ** 16 / 20** | *Nếu tổng điểm > 12/20: Bài toán rất phù hợp triển khai Agentic System.* |
 
 ---
 
@@ -28,20 +28,32 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
 [
   {
     "step": 1,
+    "query": "Hãy tra cứu kết quả kiểm định chất lượng của ca gán nhãn LB-3D-102.",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "academic_query",
+    "tool_name": "query_qc_label",
     "arguments": {
-      "student_id": "SV2026001"
+      "label_id": "LB-3D-102"
     },
     "observation": {
-      "status": "SUCCESS",
-      "student_id": "SV2026001",
+      "status": "SUCESS",
+      "label_id": "LB-3D-102",
       "data": {
-        "full_name": "Nguyễn Văn An",
-        "gpa": 3.85
+        "data_type": "3D",
+        "qc_status": "FAILED",
+        "defect_type": "Incorrect 3D bounding box",
+        "severity": "HIGH",
+        "rework_required": true
       }
     },
-    "latency_ms": 120.5
+    "latency_ms": 5476.08
+  },
+  {
+    "step": 2,
+    "query": "Hãy tra cứu kết quả kiểm định chất lượng của ca gán nhãn LB-3D-102.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Phản hồi từ công cụ: {\"status\": \"SUCESS\", \"label_id\": \"LB-3D-102\", \"data\": {\"data_type\": \"3D\", \"qc_status\": \"FAILED\", \"defect_type\": \"Incorrect 3D bounding box\", \"severity\": \"HIGH\", \"rework_required\": true}}",
+    "latency_ms": 10.0
   }
 ]
 ```
@@ -50,10 +62,10 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
 
 ## 3. TỔNG KẾT KẾT QUẢ NGHIỆM THU & NỘP BÀI
 
-- [ ] Đã điền API Key thật trong `.env` và xác nhận Agent chạy mượt mà trên LLM API thật (Gemini/OpenAI).
-- **Tổng số Test Cases đã chạy thành công:** ___ / 5 test cases.
-- **Số lượt gọi Tool qua MCP Server chính xác:** ___ lượt.
-- **Kết quả đẩy Repo nộp bài:** [ ] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân.
+- [x] Đã điền API Key thật trong `.env` và xác nhận Agent chạy mượt mà trên LLM API thật (Gemini/OpenAI).
+- **Tổng số Test Cases đã chạy thành công:** 2 / 5 test cases.
+- **Số lượt gọi Tool qua MCP Server chính xác:** 2 lượt.
+- **Kết quả đẩy Repo nộp bài:** [x] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân.
 
 ---
 

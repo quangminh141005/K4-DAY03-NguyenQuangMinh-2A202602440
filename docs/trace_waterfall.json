@@ -1,29 +1,114 @@
 [
   {
     "step": 1,
-    "query": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
+    "query": "Hãy giải thích ngắn gọn quy trình kiểm định chất lượng cho dữ liệu gán nhãn 2D/3D và khi nào cần tạo phiếu Rework.",
     "action_type": "FINAL_ANSWER",
-    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
-    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-    "latency_ms": 2845.93
+    "thought": "Gemini phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Quy trình kiểm định chất lượng (QC) cho dữ liệu gán nhãn 2D/3D và thời điểm cần tạo phiếu Rework được thực hiện như sau:\n\n### 1. Quy trình kiểm định chất lượng (QC) dữ liệu gán nhãn 2D/3D\n*   **Bước 1: Gán nhãn (Labeling):** Người gán nhãn (Labeler) thực hiện vẽ khung giới hạn (Bounding Box 2D/3D), phân vùng (Segmentation), hoặc gắn thẻ thuộc tính cho các vật thể trên hình ảnh hoặc đám mây điểm (Point Cloud).\n*   **Bước 2: Kiểm tra (Review/QC):** Kiểm định viên (QCer) hoặc hệ thống tự động sẽ đối chiếu sản phẩm với bộ quy chuẩn (Guidelines) để đánh giá các tiêu chí:\n    *   **Độ chính xác vị trí:** Khung gán nhãn phải ôm sát vật thể, không quá rộng hoặc quá hẹp.\n    *   **Đúng phân loại (Class):** Xác định đúng loại vật thể (ví dụ: xe hơi, người đi bộ, rào chắn...).\n    *   **Thuộc tính (Attributes):** Các thông tin bổ sung (màu sắc, trạng thái động/tĩnh, bị che khuất...) phải chính xác.\n    *   **Đầy đủ:** Không bỏ sót vật thể cần gán nhãn và không gán nhãn thừa (nhiễu).\n*   **Bước 3: Đánh giá kết quả:** Ca gán nhãn sẽ được phân loại thành **Đạt (Passed)** hoặc **Không đạt (Failed)**.\n\n---\n\n### 2. Khi nào cần tạo phiếu Rework?\nPhiếu **Rework** (Yêu cầu làm lại/Sửa lỗi) được tạo khi:\n*   Ca gán nhãn **không vượt qua vòng kiểm định chất lượng (QC Failed)** do vi phạm các tiêu chuẩn gán nhãn (sai lệch khung, sai class, thiếu/thừa nhãn).\n*   Khi tạo phiếu Rework, kiểm định viên cần cung cấp:\n    1.  **Mã ca gán nhãn (Label ID)** cần sửa.\n    2.  **Lý do chi tiết (Reason):** Mô tả cụ thể lỗi sai để người gán nhãn biết cần chỉnh sửa phần nào.\n    3.  **Mức độ ưu tiên (Priority):** Xác định độ khẩn cấp (Thấp - LOW, Trung bình - MEDIUM, Cao - HIGH) để tối ưu hóa tiến độ dự án.",
+    "latency_ms": 8974.11
   },
   {
     "step": 1,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Hãy tra cứu kết quả kiểm định chất lượng của ca gán nhãn LB-3D-102.",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "academic_query",
+    "tool_name": "query_qc_label",
     "arguments": {
-      "student_id": "SV2026001"
+      "label_id": "LB-3D-102"
     },
-    "observation": {},
-    "latency_ms": 799.12
+    "observation": {
+      "status": "SUCESS",
+      "label_id": "LB-3D-102",
+      "data": {
+        "data_type": "3D",
+        "qc_status": "FAILED",
+        "defect_type": "Incorrect 3D bounding box",
+        "severity": "HIGH",
+        "rework_required": true
+      }
+    },
+    "latency_ms": 5476.08
   },
   {
     "step": 2,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Hãy tra cứu kết quả kiểm định chất lượng của ca gán nhãn LB-3D-102.",
     "action_type": "FINAL_ANSWER",
     "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1).",
+    "output": "Phản hồi từ công cụ: {\"status\": \"SUCESS\", \"label_id\": \"LB-3D-102\", \"data\": {\"data_type\": \"3D\", \"qc_status\": \"FAILED\", \"defect_type\": \"Incorrect 3D bounding box\", \"severity\": \"HIGH\", \"rework_required\": true}}",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy tạo phiếu Rework cho ca gán nhãn LB-3D-102 vì lỗi khung giới hạn 3D không chính xác, mức ưu tiên HIGH.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "create_rework_ticket",
+    "arguments": {
+      "priority": "HIGH",
+      "label_id": "LB-3D-102",
+      "reason": "lỗi khung giới hạn 3D không chính xác"
+    },
+    "observation": {
+      "status": "UNKNOWN_TOOL",
+      "error": "Tool 'create_rework_ticket' không tồn tại!"
+    },
+    "latency_ms": 1780.88
+  },
+  {
+    "step": 2,
+    "query": "Hãy tạo phiếu Rework cho ca gán nhãn LB-3D-102 vì lỗi khung giới hạn 3D không chính xác, mức ưu tiên HIGH.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Phản hồi từ công cụ: {\"status\": \"UNKNOWN_TOOL\", \"error\": \"Tool 'create_rework_ticket' không tồn tại!\"}",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy kiểm tra ca gán nhãn LB-3D-102 và tự động tạo phiếu Rework với mức ưu tiên HIGH nếu ca này không đạt QC và cần chỉnh sửa.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "query_qc_label",
+    "arguments": {
+      "label_id": "LB-3D-102"
+    },
+    "observation": {
+      "status": "SUCESS",
+      "label_id": "LB-3D-102",
+      "data": {
+        "data_type": "3D",
+        "qc_status": "FAILED",
+        "defect_type": "Incorrect 3D bounding box",
+        "severity": "HIGH",
+        "rework_required": true
+      }
+    },
+    "latency_ms": 6165.72
+  },
+  {
+    "step": 2,
+    "query": "Hãy kiểm tra ca gán nhãn LB-3D-102 và tự động tạo phiếu Rework với mức ưu tiên HIGH nếu ca này không đạt QC và cần chỉnh sửa.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Phản hồi từ công cụ: {\"status\": \"SUCESS\", \"label_id\": \"LB-3D-102\", \"data\": {\"data_type\": \"3D\", \"qc_status\": \"FAILED\", \"defect_type\": \"Incorrect 3D bounding box\", \"severity\": \"HIGH\", \"rework_required\": true}}",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy tra cứu kết quả kiểm định của ca gán nhãn LB-999999.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "query_qc_label",
+    "arguments": {
+      "label_id": "LB-999999"
+    },
+    "observation": {
+      "status": "EXECUTION_ERROR",
+      "error": "dump() missing 1 required positional argument: 'fp'"
+    },
+    "latency_ms": 3820.95
+  },
+  {
+    "step": 2,
+    "query": "Hãy tra cứu kết quả kiểm định của ca gán nhãn LB-999999.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Phản hồi từ công cụ: {\"status\": \"EXECUTION_ERROR\", \"error\": \"dump() missing 1 required positional argument: 'fp'\"}",
     "latency_ms": 10.0
   }
 ]
