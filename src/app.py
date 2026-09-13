@@ -17,7 +17,7 @@ if sys.stdout.encoding != 'utf-8':
     except Exception:
         pass
 
-from mcp_server import MCPAcademicServer
+from mcp_server import MCPQCServer
 from prompts import (
     CHATBOT_BASELINE_PROMPT,
     REACT_AGENT_SYSTEM_PROMPT,
@@ -61,7 +61,7 @@ def run_baseline_chatbot(user_query: str, provider):
     print(f"🤖 Chatbot phản hồi:\n{response}")
 
 
-def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) -> list:
+def run_react_agent(user_query: str, provider, mcp_server: MCPQCServer) -> list:
     """
     [REACT AGENT LOOP] Thực thi vòng lặp Thought -> Action -> Observation với MCP Server
     Trả về danh sách trace log của phiên thực thi.

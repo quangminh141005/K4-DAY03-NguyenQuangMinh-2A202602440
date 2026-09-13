@@ -84,9 +84,9 @@ if __name__ == "__main__":
         print("✅ [TODO 1.2]: Tool 'schedule_appointment' đã có schema đầy đủ.")
 
     # Kiểm tra trạng thái TODO 2.1 (call_tool)
-    test_result = server.call_tool("academic_query", {"student_id": "SV2026001"})
+    test_result = server.call_tool("query_qc_label", {"label_id": "LB-3D-102"})
     if not test_result:
         print("⏳ [TODO 2.1]: Hàm call_tool() đang trả về rỗng. Học viên hãy hoàn thiện TODO 2.1 trong 'src/mcp_server.py'!")
     else:
-        print(f"✅ [TODO 2.1]: Test dispatch tool 'academic_query' thành công:")
+        print(f"✅ [TODO 2.1]: Test dispatch tool 'query_qc_label' thành công:")
         print(f"   Phản hồi JSON-RPC: {json.dumps(test_result, ensure_ascii=False)}")

@@ -135,8 +135,8 @@ def execute_create_rework_ticket(
 
 # Router gọi tool thực tế
 TOOL_ROUTER = {
-    "academic_query": execute_query_qc_label,
-    "schedule_appointment": execute_create_rework_ticket
+    "query_qc_label": execute_query_qc_label,
+    "create_rework_tickey": execute_create_rework_ticket
 }
 
 def dispatch_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
