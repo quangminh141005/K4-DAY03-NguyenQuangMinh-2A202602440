@@ -14,11 +14,11 @@ if sys.stdout.encoding != 'utf-8':
     except Exception:
         pass
 
-class MCPAcademicServer:
+class MCPQCServer:
     """
     Giả lập MCP Server tuân thủ chuẩn giao thức Model Context Protocol
     """
-    def __init__(self, server_name: str = "vinuni-academic-mcp-server"):
+    def __init__(self, server_name: str = "QC-assitance-mcp-server"):
         self.server_name = server_name
         self.version = "2026.1.0"
         
@@ -39,6 +39,30 @@ class MCPAcademicServer:
         # 3. Đóng gói phản hồi và trả về Dict theo đúng chuẩn giao thức MCP JSON-RPC 2.0:
         #    - Các trường bắt buộc: "jsonrpc": "2.0", "server": self.server_name, "tool": tool_name, "result": content
         # --------------------------------------------------------------------------
+        try:
+            result_json = dispatch_tool_call(tool_name, arguments)
+
+            # convert to python dict?
+            content = json.loads(result_json)
+
+            return {
+                "jsonrpc": "2.0",
+                "server": self.server_name,
+                "tool": tool_name,
+                "result": content
+            }
+        except json.JSONDecodeError as exc:
+            return {
+                "jsonrpc": "2.0",
+                "server": self.server_name,
+                "tool": tool_name,
+                "result": {
+                    "status": "INVALID_TOOL_RESPONSE",
+                    "error": f"Tool returned invalid JSON: {str(exc)}"
+                }
+            }
+        
+        
         return {}
 
 
@@ -47,7 +71,7 @@ if __name__ == "__main__":
     print("🔌 KIỂM THỬ ĐỘC LẬP MCP SERVER (vinuni-academic-mcp-server)")
     print("==========================================================")
     
-    server = MCPAcademicServer()
+    server = MCPQCServer()
     tools = server.list_tools()
     print(f"✅ Khởi tạo thành công MCP Server: {server.server_name} (Version: {server.version})")
     print(f"📦 Số lượng Tools công bố: {len(tools)}")
